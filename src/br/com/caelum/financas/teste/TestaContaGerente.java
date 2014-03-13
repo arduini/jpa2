@@ -1,6 +1,7 @@
 package br.com.caelum.financas.teste;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
 
 import br.com.caelum.financas.dao.ContaDAO;
 import br.com.caelum.financas.infra.JPAUtil;
@@ -32,10 +33,18 @@ public class TestaContaGerente {
 		conta.setTitular("Cliente Teste Dois");
 		
 		em.getTransaction().begin();
-		em.persist(gerente);
-		dao.adiciona(conta);
-		em.getTransaction().commit();
-		em.close();
+		
+		try {
+			em.persist(gerente);
+			dao.adiciona(conta);
+			em.getTransaction().commit();
+		} catch (PersistenceException e) {
+			em.getTransaction().rollback();
+			System.out.println("Não foi possível persistir os dados...");
+			//e.printStackTrace();
+		} finally {		
+			em.close();
+		}
 
 	}
 
